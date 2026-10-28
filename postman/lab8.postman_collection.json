@@ -1,0 +1,767 @@
+{
+  "info": {
+    "name": "ЛР8 — регистрация, вход, роли и студенты",
+    "description": "Выполнять сверху вниз в Collection Runner с включённой cookie jar. Перенаправления в запросах выключены для проверки статусов 303. CSRF извлекается из HTML, email генерируется заново. Сценарий удаляет только созданного им студента; учебный аккаунт остаётся в БД. Сервис 2 и скриншоты не требуются.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082",
+      "type": "string"
+    },
+    {
+      "key": "lab8Csrf",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lab8Email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lab8StudentSurname",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lab8StudentId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const csrf = pm.response.text().match(/name=\"_csrf\" value=\"([a-f0-9]{64})\"/);",
+          "if (csrf) pm.collectionVariables.set('lab8Csrf', csrf[1]);",
+          "pm.test('Пароль не возвращается в HTML', function () { pm.expect(pm.response.text().includes('Study-password-8!')).to.eql(false); });"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Публичная главная",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Аноним направляется на вход",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/list"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });",
+              "pm.test('Перенаправление на вход', function () { pm.expect(pm.response.headers.get('Location')).to.eql('/lab8/login'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Форма регистрации и CSRF",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/register"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('lab8Email', 'lab8-' + Date.now() + '-' + Math.random().toString(16).slice(2) + '@example.test');",
+              "pm.collectionVariables.set('lab8StudentSurname', 'Postman-' + Date.now());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Регистрация",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/register/save",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            },
+            {
+              "key": "firstName",
+              "value": "Postman",
+              "type": "text"
+            },
+            {
+              "key": "lastName",
+              "value": "Student",
+              "type": "text"
+            },
+            {
+              "key": "email",
+              "value": "{{lab8Email}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "Study-password-8!",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Сообщение об успехе",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/register?success=1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Регистрация подтверждена', function () { pm.expect(pm.response.text().includes('Регистрация прошла успешно')).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Повторный email",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/register/save",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            },
+            {
+              "key": "firstName",
+              "value": "Postman",
+              "type": "text"
+            },
+            {
+              "key": "lastName",
+              "value": "Student",
+              "type": "text"
+            },
+            {
+              "key": "email",
+              "value": "{{lab8Email}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "Study-password-8!",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Форма входа",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Неверный пароль",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/login",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "{{lab8Email}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "Wrong-password-8!",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09. Успешный вход",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/login",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            },
+            {
+              "key": "username",
+              "value": "{{lab8Email}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "Study-password-8!",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Защищённый список и новый CSRF",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/list"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Список пользователей для ROLE_ADMIN",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/users"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Аккаунт есть в списке', function () { pm.expect(pm.response.text().includes(pm.collectionVariables.get('lab8Email'))).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Запись без CSRF запрещена",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/saveStudent",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "name",
+              "value": "Postman",
+              "type": "text"
+            },
+            {
+              "key": "surname",
+              "value": "{{lab8StudentSurname}}",
+              "type": "text"
+            },
+            {
+              "key": "faculty",
+              "value": "RTF",
+              "type": "text"
+            },
+            {
+              "key": "age",
+              "value": "21",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Форма студента",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/addStudentForm"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. Создание студента",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/saveStudent",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            },
+            {
+              "key": "name",
+              "value": "Postman",
+              "type": "text"
+            },
+            {
+              "key": "surname",
+              "value": "{{lab8StudentSurname}}",
+              "type": "text"
+            },
+            {
+              "key": "faculty",
+              "value": "RTF",
+              "type": "text"
+            },
+            {
+              "key": "age",
+              "value": "21",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15. Чтение и получение id созданного студента",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/list"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "const rows = pm.response.text().match(/<tr>[\\s\\S]*?<\\/tr>/g) || [];",
+              "const row = rows.find(function (value) { return value.includes(pm.collectionVariables.get('lab8StudentSurname')); });",
+              "pm.test('Созданный студент в списке', function () { pm.expect(Boolean(row)).to.eql(true); });",
+              "const match = row && row.match(/studentId=(\\d+)/);",
+              "if (match) pm.collectionVariables.set('lab8StudentId', match[1]);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16. Форма редактирования",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/showUpdateForm?studentId={{lab8StudentId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17. Изменение возраста",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/saveStudent",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            },
+            {
+              "key": "name",
+              "value": "Postman",
+              "type": "text"
+            },
+            {
+              "key": "surname",
+              "value": "{{lab8StudentSurname}}",
+              "type": "text"
+            },
+            {
+              "key": "faculty",
+              "value": "RTF",
+              "type": "text"
+            },
+            {
+              "key": "age",
+              "value": "22",
+              "type": "text"
+            },
+            {
+              "key": "id",
+              "value": "{{lab8StudentId}}",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18. Сохранённый возраст",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/showUpdateForm?studentId={{lab8StudentId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Возраст изменён', function () { pm.expect(pm.response.text().includes('value=\"22\"')).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19. Удаление своего студента",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/deleteStudent",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            },
+            {
+              "key": "studentId",
+              "value": "{{lab8StudentId}}",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20. Удалённый студент отсутствует",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/showUpdateForm?studentId={{lab8StudentId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21. Выход",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/lab8/logout",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "_csrf",
+              "value": "{{lab8Csrf}}",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22. После выхода доступ закрыт",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/users"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 303', function () { pm.response.to.have.status(303); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23. Подтверждение выхода",
+      "protocolProfileBehavior": {
+        "followRedirects": false
+      },
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lab8/login?logout=1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Выход подтверждён', function () { pm.expect(pm.response.text().includes('Вы вышли из системы')).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

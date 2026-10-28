@@ -1,12 +1,11 @@
-"""ЛР7: собрать DOCX из Markdown стандартной библиотекой, без скриншотов."""
+"""ЛР7–8: собрать DOCX из Markdown стандартной библиотекой, без скриншотов."""
+import argparse
 from pathlib import Path
 import re
 from xml.sax.saxutils import escape
 from zipfile import ZipFile, ZIP_DEFLATED
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "otchet" / "lab7.md"
-OUTPUT = ROOT / "otchet" / "РИЗ-250213у-Романов-Сергей-Лр7.docx"
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
@@ -125,7 +124,9 @@ def build_styles():
     return f'<w:styles xmlns:w="{W}">{styles}</w:styles>'
 
 
-def main():
+def main(laboratory=7):
+    source = ROOT / "otchet" / f"lab{laboratory}.md"
+    output = ROOT / "otchet" / f"РИЗ-250213у-Романов-Сергей-Лр{laboratory}.docx"
     content_types = (
         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
         '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
@@ -139,16 +140,18 @@ def main():
     files = {
         "[Content_Types].xml": content_types,
         "_rels/.rels": f'<Relationships xmlns="{rel_ns}"><Relationship Id="rId1" Type="{R}/officeDocument" Target="word/document.xml"/></Relationships>',
-        "word/document.xml": build_document(SOURCE.read_text(encoding="utf-8")),
+        "word/document.xml": build_document(source.read_text(encoding="utf-8")),
         "word/styles.xml": build_styles(),
         "word/_rels/document.xml.rels": f'<Relationships xmlns="{rel_ns}"><Relationship Id="rId1" Type="{R}/styles" Target="styles.xml"/><Relationship Id="rId2" Type="{R}/footer" Target="footer1.xml"/></Relationships>',
         "word/footer1.xml": f'<w:ftr xmlns:w="{W}"><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:fldSimple w:instr="PAGE"><w:r><w:t>1</w:t></w:r></w:fldSimple></w:p></w:ftr>',
     }
-    with ZipFile(OUTPUT, "w", ZIP_DEFLATED) as archive:
+    with ZipFile(output, "w", ZIP_DEFLATED) as archive:
         for name, xml in files.items():
             archive.writestr(name, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + xml)
-    print(OUTPUT)
+    print(output)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("laboratory", type=int, choices=[7, 8], nargs="?", default=7)
+    main(parser.parse_args().laboratory)

@@ -39,6 +39,9 @@ export const formNotice = (errors: FormErrors) => Object.keys(errors).length
 export const listNotice = (status: unknown) => status === 'saved' ? '<p class="notice" role="status">Изменения сохранены.</p>'
     : status === 'deleted' ? '<p class="notice" role="status">Запись удалена.</p>' : ''
 
-export const rowActions = (id: number, editUrl: string, deleteUrl: string, idField: string) => `<div class="actions">
+// ЛР8: необязательный CSRF-токен для повторного использования таблицы в защищённой версии.
+export const csrfField = (token?: string) => token === undefined ? '' : `<input type="hidden" name="_csrf" value="${escapeHtml(token)}">`
+
+export const rowActions = (id: number, editUrl: string, deleteUrl: string, idField: string, csrfToken?: string) => `<div class="actions">
 <a class="button secondary" href="${editUrl}">Изменить</a>
-<form action="${deleteUrl}" method="post"><input type="hidden" name="${idField}" value="${id}"><button class="danger" type="submit" aria-label="Удалить запись ${id}">Удалить</button></form></div>`
+<form action="${deleteUrl}" method="post">${csrfField(csrfToken)}<input type="hidden" name="${idField}" value="${id}"><button class="danger" type="submit" aria-label="Удалить запись ${id}">Удалить</button></form></div>`
