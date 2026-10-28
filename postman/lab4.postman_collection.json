@@ -1,0 +1,473 @@
+{
+  "info": {
+    "name": "ЛР4 — два REST-сервиса",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Bun + TypeScript + Elysia. Запустить Сервис 2 на 8084 и Сервис 1 на 8082. /api/v3/feedback — ЛР4, /api/v2/feedback — ЛР2–3. Изменённый запрос и время передачи проверяются в логах Сервиса 2. Время начинается при получении запроса Сервисом 1."
+  },
+  "variable": [
+    {
+      "key": "service1Url",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "service2Url",
+      "value": "http://localhost:8084"
+    }
+  ],
+  "item": [
+    {
+      "name": "ЛР4 — запрос через Сервис 1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-4\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service1Url}}/api/v3/feedback",
+          "host": [
+            "{{service1Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "В логах Сервиса 1: CRM / Postman. В логах Сервиса 2: ERP / Service 1, остальные поля без изменений. Далее строка Transfer time с uid и operationUid. Сервис 1 отвечает после успешного ответа Сервиса 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(200); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"message-4\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР4 — без необязательных systemName и source",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-4\",\n  \"operationUid\": \"operation-4\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service1Url}}/api/v3/feedback",
+          "host": [
+            "{{service1Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "Перед пересылкой Сервис 1 заполнит systemName = ERP, source = Service 1."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(200); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"message-4\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР4 — прямой запрос к Сервису 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-4\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service2Url}}/api/v3/feedback",
+          "host": [
+            "{{service2Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "Сервис 2 не пересылает запрос дальше. Без метки времени в логах будет Transfer time unavailable."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(200); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"message-4\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР4 — проверка времени по заголовку",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-service1-received-at",
+            "value": "{{service1ReceivedAt}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-4\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service2Url}}/api/v3/feedback",
+          "host": [
+            "{{service2Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "Учебная метка установлена на 1 секунду раньше отправки: в логах Сервиса 2 ожидается Transfer time не менее 1000 ms. systemTime в JSON не участвует в измерении."
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('service1ReceivedAt', String(Date.now() - 1000));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(200); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"message-4\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР4 — пустой uid",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service1Url}}/api/v3/feedback",
+          "host": [
+            "{{service1Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400; Сервис 2 этот запрос не получает."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР4 — communicationId вне диапазона",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-4\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 0,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service1Url}}/api/v3/feedback",
+          "host": [
+            "{{service1Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400; Сервис 2 этот запрос не получает."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"message-4\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР4 — неизвестный Systems",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-4\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"UNKNOWN\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service1Url}}/api/v3/feedback",
+          "host": [
+            "{{service1Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400; Сервис 2 этот запрос не получает."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"message-4\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР4 — неподдерживаемый uid",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"123\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service1Url}}/api/v3/feedback",
+          "host": [
+            "{{service1Url}}"
+          ],
+          "path": [
+            "api",
+            "v3",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400; Сервис 2 этот запрос не получает."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('UnsupportedCodeException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"123\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР2–3 — прежний маршрут без пересылки",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-4\",\n  \"operationUid\": \"operation-4\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{service1Url}}/api/v2/feedback",
+          "host": [
+            "{{service1Url}}"
+          ],
+          "path": [
+            "api",
+            "v2",
+            "feedback"
+          ]
+        },
+        "description": "Маршрут ЛР2–3 работает независимо от Сервиса 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(200); });",
+              "pm.test('Код результата', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql(\"message-4\"); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-4'); });",
+              "pm.test('systemTime заполнен', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

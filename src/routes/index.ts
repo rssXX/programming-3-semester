@@ -5,3 +5,5 @@ export {
     ROUTES_V1,
     ROUTES_V2,
 }
+
+export { createService1Feedback, createService2Feedback } from './v3'

@@ -1,0 +1,21 @@
+import { Elysia } from 'elysia'
+import { openapi } from '@elysia/openapi'
+import { consola } from 'consola'
+import { ROUTES_V1, ROUTES_V2, createService1Feedback } from './routes'
+
+interface AppOptions {
+    service2Url?: string
+    logger?: typeof consola
+    timeoutMs?: number
+}
+
+// ЛР4: Сервис 1. /api/v1 и /api/v2 сохраняют поведение предыдущих лабораторных.
+export const createApp = ({
+    service2Url = process.env.SERVICE2_URL ?? 'http://localhost:8084/api/v3/feedback',
+    logger,
+    timeoutMs,
+}: AppOptions = {}) => new Elysia()
+    .use(openapi())
+    .group('/api/v1', group => group.use(ROUTES_V1))
+    .group('/api/v2', group => group.use(ROUTES_V2))
+    .group('/api/v3', group => group.use(createService1Feedback({ targetUrl: service2Url, logger, timeoutMs })))

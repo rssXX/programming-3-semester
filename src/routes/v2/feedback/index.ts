@@ -8,20 +8,37 @@ import { ModifySystemTimeResponseService, RequestValidationService } from './ser
 import type { ModifyResponseService } from './service'
 import { UnsupportedCodeException, ValidationFailedException } from './exception'
 
-const validationService = new RequestValidationService()
-const modifyResponseService: ModifyResponseService = new ModifySystemTimeResponseService()
+// ЛР4: общий обработчик ЛР2–3 используется обоими сервисами без копирования кода.
+export interface FeedbackOptions {
+    logger?: typeof consola
+    processRequest?: (
+        body: typeof FeedbackModelRequest.static,
+        receivedAt: number,
+        request: Request,
+    ) => void | Promise<void>
+}
 
-export const feedback = new Elysia({ prefix: '/feedback' })
-    .decorate('logger', consola)
+export const createFeedback = (options: FeedbackOptions = {}) => {
+    const receivedAt = new WeakMap<Request, number>()
+    const logger = options.logger ?? consola
+    const validationService = new RequestValidationService(logger)
+    const modifyResponseService: ModifyResponseService = new ModifySystemTimeResponseService(logger)
+
+    return new Elysia({ prefix: '/feedback' })
+    .onRequest(({ request }) => {
+        // Время фиксируется до разбора JSON и валидации, отдельно для каждого запроса.
+        receivedAt.set(request, Date.now())
+    })
 	.post(
 		'',
-		({ body, logger }) => {
+		async ({ body, request }) => {
             logger.info(`request: ${new FeedbackRequest(body).toString()}`)
 			validationService.isValid([])
             if (body.uid === '123') {
                 logger.error('UnsupportedCodeException: uid 123 is not supported')
                 throw new UnsupportedCodeException('uid 123 не поддерживается')
             }
+            await options.processRequest?.(body, receivedAt.get(request)!, request)
 			const response = {
 				uid: body.uid,
 				operationUid: body.operationUid,
@@ -41,7 +58,7 @@ export const feedback = new Elysia({ prefix: '/feedback' })
                 400: FeedbackModelResponse,
                 500: FeedbackModelResponse,
             },
-            error({ code, error, body, set, logger }) {
+            error({ code, error, body, set }) {
                 logger.info('Request that caused an error:', JSON.stringify(body))
                 logger.error('Request processing error:', error instanceof Error ? error.message : error)
                 const request = body as Record<string, unknown> | null | undefined
@@ -92,3 +109,6 @@ export const feedback = new Elysia({ prefix: '/feedback' })
             },
 		}
 	)
+}
+
+export const feedback = createFeedback()

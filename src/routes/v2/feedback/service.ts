@@ -10,13 +10,15 @@ export interface ValidationService {
 }
 
 export class RequestValidationService implements ValidationService {
+    constructor(private readonly logger = consola) {}
+
     isValid(errors: readonly string[]): void {
-        consola.info('Request validation started')
+        this.logger.info('Request validation started')
         if (errors.length > 0) {
-            consola.error('ValidationFailedException:', errors)
+            this.logger.error('ValidationFailedException:', errors)
             throw new ValidationFailedException(errors[0])
         }
-        consola.info('Request validation passed')
+        this.logger.info('Request validation passed')
     }
 }
 
@@ -34,10 +36,12 @@ export class ModifyOperationUidResponseService implements ModifyResponseService 
 }
 
 export class ModifySystemTimeResponseService implements ModifyResponseService {
+    constructor(private readonly logger = consola) {}
+
     modify(response: FeedbackResponse): FeedbackResponse {
-        consola.info('Before systemTime modification:', JSON.stringify(response))
+        this.logger.info('Before systemTime modification:', JSON.stringify(response))
         response.systemTime = DateTimeUtil.getCustomFormat(new Date())
-        consola.info('After systemTime modification:', JSON.stringify(response))
+        this.logger.info('After systemTime modification:', JSON.stringify(response))
         return response
     }
 }

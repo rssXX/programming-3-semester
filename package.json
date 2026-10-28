@@ -2,8 +2,12 @@
   "name": "app",
   "version": "1.0.50",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "dev": "bun run --watch src/index.ts",
+    "dev:service2": "bun run --watch src/service2.ts",
+    "start": "bun run src/index.ts",
+    "start:service2": "bun run src/service2.ts"
   },
   "dependencies": {
     "@elysia/openapi": "^1.4.16",
@@ -11,7 +15,8 @@
     "elysia": "latest"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "typescript": "^7.0.2"
   },
   "module": "src/index.js"
 }
