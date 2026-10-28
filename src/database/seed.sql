@@ -14,3 +14,8 @@ WHERE NOT EXISTS (SELECT 1 FROM disciplines WHERE name = 'Технологии �
 INSERT INTO disciplines (name, hours)
 SELECT 'Базы данных', 108
 WHERE NOT EXISTS (SELECT 1 FROM disciplines WHERE name = 'Базы данных' AND hours = 108);
+
+-- ЛР7: пример учебной группы; повторный seed не создаёт дубликат.
+INSERT INTO study_groups (name, faculty, course)
+SELECT 'РИЗ-250213у', 'ИРИТ-РТФ', 2
+WHERE NOT EXISTS (SELECT 1 FROM study_groups WHERE name = 'РИЗ-250213у' AND faculty = 'ИРИТ-РТФ' AND course = 2);

@@ -1,0 +1,78 @@
+{
+  "info": {
+    "name": "ЛР7 — веб-формы и мониторинг",
+    "description": "Bun + TypeScript + Elysia + SQLite. Проверки доступности HTML-форм и аналога Actuator. CRUD выполняется через формы в браузере. Достаточно Сервиса 1 на порту 8082; скриншоты добавляются самостоятельно.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "baseUrl", "value": "http://localhost:8082", "type": "string" }],
+  "event": [{
+    "listen": "test",
+    "script": { "type": "text/javascript", "exec": [
+      "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });"
+    ] }
+  }],
+  "item": [
+    {
+      "name": "Веб-формы",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Сервер возвращает HTML', function () { pm.expect(pm.response.headers.get('Content-Type').includes('text/html')).to.eql(true); });"
+      ] } }],
+      "item": [
+        { "name": "Список студентов", "request": { "method": "GET", "url": "{{baseUrl}}/list" } },
+        { "name": "Форма добавления студента", "request": { "method": "GET", "url": "{{baseUrl}}/addStudentForm" } },
+        { "name": "Список учебных групп", "request": { "method": "GET", "url": "{{baseUrl}}/groups" } },
+        { "name": "Форма добавления группы", "request": { "method": "GET", "url": "{{baseUrl}}/addGroupForm" } }
+      ]
+    },
+    {
+      "name": "Мониторинг — аналог Actuator",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Сервер возвращает JSON', function () { pm.expect(pm.response.headers.get('Content-Type').includes('application/json')).to.eql(true); });"
+      ] } }],
+      "item": [
+        {
+          "name": "Ссылки на методы",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Ссылка на health', function () { pm.expect(pm.response.json()._links.health.href).to.eql('/actuator/health'); });"
+          ] } }]
+        },
+        {
+          "name": "1. Состояние приложения и БД",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/health" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('SQLite доступна', function () { pm.expect(pm.response.json().status).to.eql('UP'); pm.expect(pm.response.json().components.database.status).to.eql('UP'); });"
+          ] } }]
+        },
+        {
+          "name": "2. Информация о приложении",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/info" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Лабораторная работа 7', function () { pm.expect(pm.response.json().application.laboratory).to.eql(7); });"
+          ] } }]
+        },
+        {
+          "name": "3. Список метрик",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/metrics" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Доступны обе метрики', function () { pm.expect(pm.response.json().names).to.eql(['process.uptime', 'process.memory.usage']); });"
+          ] } }]
+        },
+        {
+          "name": "4. Время работы процесса",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/metrics/process.uptime" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Время работы в секундах', function () { const data = pm.response.json(); pm.expect(data.baseUnit).to.eql('seconds'); pm.expect(data.measurements[0].value > 0).to.eql(true); });"
+          ] } }]
+        },
+        {
+          "name": "5. Использование памяти",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/metrics/process.memory.usage" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Память RSS в байтах', function () { const data = pm.response.json(); pm.expect(data.baseUnit).to.eql('bytes'); pm.expect(data.measurements[0].value > 0).to.eql(true); });"
+          ] } }]
+        }
+      ]
+    }
+  ]
+}

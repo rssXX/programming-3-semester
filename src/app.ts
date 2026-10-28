@@ -2,6 +2,8 @@ import { Elysia } from 'elysia'
 import { openapi } from '@elysia/openapi'
 import { consola } from 'consola'
 import { ApplicationDatabase } from './database'
+import { createLab7Pages } from './routes/lab7'
+import { createMonitoring } from './routes/lab7/monitoring'
 import { ROUTES_V1, ROUTES_V2, createService1Feedback, createBonusFeedback, createDatabaseRoutes } from './routes'
 
 interface AppOptions {
@@ -29,4 +31,7 @@ export const createApp = ({
         .group('/api/v4', group => group.use(createBonusFeedback({ targetUrl: service2Url, logger, timeoutMs })))
         // ЛР6: CRUD с файловой базой SQLite. Старые версии API не требуют её открытия.
         .group('/api/v5', group => group.use(createDatabaseRoutes(connection, logger)))
+        // ЛР7: HTML-формы студентов и групп, а также аналог Actuator.
+        .use(createLab7Pages(connection, logger))
+        .use(createMonitoring(connection, logger))
 }

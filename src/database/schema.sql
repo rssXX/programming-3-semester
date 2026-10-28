@@ -13,3 +13,11 @@ CREATE TABLE IF NOT EXISTS disciplines (
     name TEXT NOT NULL CHECK (length(trim(name)) BETWEEN 1 AND 100),
     hours INTEGER NOT NULL CHECK (hours BETWEEN 1 AND 10000)
 ) STRICT;
+
+-- ЛР7: учебные группы. Поля дополнительной сущности выбраны в рамках работы.
+CREATE TABLE IF NOT EXISTS study_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL CHECK (length(trim(name)) BETWEEN 1 AND 30),
+    faculty TEXT NOT NULL CHECK (length(trim(faculty)) BETWEEN 1 AND 20),
+    course INTEGER NOT NULL CHECK (course BETWEEN 1 AND 6)
+) STRICT;
