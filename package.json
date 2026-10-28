@@ -7,7 +7,9 @@
     "dev": "bun run --watch src/index.ts",
     "dev:service2": "bun run --watch src/service2.ts",
     "start": "bun run src/index.ts",
-    "start:service2": "bun run src/service2.ts"
+    "start:service2": "bun run src/service2.ts",
+    "db:init": "bun run scripts/database.ts init",
+    "db:seed": "bun run scripts/database.ts seed"
   },
   "dependencies": {
     "@elysia/openapi": "^1.4.16",

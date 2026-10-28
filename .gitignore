@@ -40,3 +40,6 @@ yarn-error.log*
 **/*.log
 package-lock.json
 **/*.bun
+
+# ЛР6: локальная база SQLite и её служебные файлы
+/testdb/*.sqlite*

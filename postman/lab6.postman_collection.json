@@ -1,0 +1,1115 @@
+{
+  "info": {
+    "name": "ЛР6 — CRUD студентов и дисциплин",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Bun + Elysia + SQLite. Запустить bun run dev на 8082. Выполнять папки целиком сверху вниз: POST сохраняет id созданной записи, следующие запросы используют только этот id. Существующие записи не удаляются. Для учебных дисциплин выбраны поля name и hours."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "studentId",
+      "value": ""
+    },
+    {
+      "key": "disciplineId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Студенты",
+      "item": [
+        {
+          "name": "01 — список",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Массив записей', function () { pm.expect(Array.isArray(pm.response.json().data)).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 — создание",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Иван\",\n  \"surname\": \"Иванов\",\n  \"faculty\": \"ИТ\",\n  \"age\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Иван\"); });",
+                  "pm.test('Автоматический id', function () { pm.expect(Number.isSafeInteger(pm.response.json().data.id) && pm.response.json().data.id > 0).to.eql(true); });",
+                  "pm.collectionVariables.set('studentId', String(pm.response.json().data.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 — чтение по id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students",
+                "{{studentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Иван\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 — запись присутствует в списке",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Массив записей', function () { pm.expect(Array.isArray(pm.response.json().data)).to.eql(true); });",
+                  "pm.test('Созданная запись в списке', function () { const id = Number(pm.collectionVariables.get('studentId')); pm.expect(pm.response.json().data.some(row => row.id === id)).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 — изменение",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{studentId}},\n  \"name\": \"Анна\",\n  \"surname\": \"Петрова\",\n  \"faculty\": \"РТФ\",\n  \"age\": 21\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Анна\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 — чтение сохранённых изменений",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students",
+                "{{studentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Анна\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 — PUT без id",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Иван\",\n  \"surname\": \"Иванов\",\n  \"faculty\": \"ИТ\",\n  \"age\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 — повреждённый JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{broken",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 — удаление",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students",
+                "{{studentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Удалён нужный id', function () { pm.expect(String(pm.response.json().data.id)).to.eql(pm.collectionVariables.get('studentId')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 — удалённая запись не найдена",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students",
+                "{{studentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 — изменение отсутствующей записи",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{studentId}},\n  \"name\": \"Анна\",\n  \"surname\": \"Петрова\",\n  \"faculty\": \"РТФ\",\n  \"age\": 21\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 — повторное удаление",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students",
+                "{{studentId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 — ошибка валидации",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \" \",\n  \"surname\": \"Иванов\",\n  \"faculty\": \"ИТ\",\n  \"age\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 — некорректный id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/students/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "students",
+                "abc"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Учебные дисциплины",
+      "item": [
+        {
+          "name": "01 — список",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Массив записей', function () { pm.expect(Array.isArray(pm.response.json().data)).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 — создание",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Базы данных\",\n  \"hours\": 108\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Базы данных\"); });",
+                  "pm.test('Автоматический id', function () { pm.expect(Number.isSafeInteger(pm.response.json().data.id) && pm.response.json().data.id > 0).to.eql(true); });",
+                  "pm.collectionVariables.set('disciplineId', String(pm.response.json().data.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 — чтение по id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines/{{disciplineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines",
+                "{{disciplineId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Базы данных\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 — запись присутствует в списке",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Массив записей', function () { pm.expect(Array.isArray(pm.response.json().data)).to.eql(true); });",
+                  "pm.test('Созданная запись в списке', function () { const id = Number(pm.collectionVariables.get('disciplineId')); pm.expect(pm.response.json().data.some(row => row.id === id)).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 — изменение",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{disciplineId}},\n  \"name\": \"Программирование\",\n  \"hours\": 144\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Программирование\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 — чтение сохранённых изменений",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines/{{disciplineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines",
+                "{{disciplineId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Значения записи', function () { pm.expect(pm.response.json().data.name).to.eql(\"Программирование\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 — PUT без id",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Базы данных\",\n  \"hours\": 108\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 — повреждённый JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{broken",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 — удаление",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines/{{disciplineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines",
+                "{{disciplineId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Удалён нужный id', function () { pm.expect(String(pm.response.json().data.id)).to.eql(pm.collectionVariables.get('disciplineId')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 — удалённая запись не найдена",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines/{{disciplineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines",
+                "{{disciplineId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 — изменение отсутствующей записи",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{disciplineId}},\n  \"name\": \"Программирование\",\n  \"hours\": 144\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 — повторное удаление",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines/{{disciplineId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines",
+                "{{disciplineId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 — ошибка валидации",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Базы данных\",\n  \"hours\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 — некорректный id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v5/disciplines/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v5",
+                "disciplines",
+                "abc"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Признак успеха', function () { pm.expect(pm.response.json().success).to.eql(false); });",
+                  "pm.test('Сообщение результата', function () { pm.expect(pm.response.json().message.length > 0).to.eql(true); });",
+                  "pm.test('Нет данных при ошибке', function () { pm.expect(pm.response.json().data).to.eql(null); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
