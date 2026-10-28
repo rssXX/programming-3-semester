@@ -1,0 +1,37 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1700' height='1000' viewBox='0 0 1700 1000'><rect width='100%' height='100%' fill='white'/><defs><marker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto'><path d='M0,0 L0,6 L9,3 z' fill='#5a6d88'/></marker></defs>
+<polyline points='600,140 480,470' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='820,250 820,350' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1040,140 1160,470' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='820,250 260,770' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='820,630 820,770' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='480,470 600,865' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1160,470 1040,865' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<rect x='600' y='30' width='440' height='220' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='616' y='68' font-family='Times New Roman' font-size='27' font-weight='bold'>Elysia: index.ts</text>
+<text x='616' y='112' font-family='Times New Roman' font-size='23'>Маршруты одной цепочкой</text>
+<text x='616' y='146' font-family='Times New Roman' font-size='23'>Проверка сессии и CSRF</text>
+<text x='616' y='180' font-family='Times New Roman' font-size='23'>Возврат JSX-страницы</text>
+<rect x='40' y='350' width='440' height='240' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='56' y='388' font-family='Times New Roman' font-size='27' font-weight='bold'>UserService</text>
+<text x='56' y='432' font-family='Times New Roman' font-size='23'>register(dto)</text>
+<text x='56' y='466' font-family='Times New Roman' font-size='23'>authenticate(login, password)</text>
+<text x='56' y='500' font-family='Times New Roman' font-size='23'>UserDAO + Argon2id</text>
+<rect x='600' y='350' width='440' height='280' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='616' y='388' font-family='Times New Roman' font-size='27' font-weight='bold'>CourseService</text>
+<text x='616' y='432' font-family='Times New Roman' font-size='23'>animals(); expenses()</text>
+<text x='616' y='466' font-family='Times New Roman' font-size='23'>save*(); delete*(); costs()</text>
+<text x='616' y='500' font-family='Times New Roman' font-size='23'>grant(); log(); logs()</text>
+<text x='616' y='534' font-family='Times New Roman' font-size='23'>SQL и проверка владельца</text>
+<rect x='1160' y='350' width='440' height='240' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='1176' y='388' font-family='Times New Roman' font-size='27' font-weight='bold'>SessionService</text>
+<text x='1176' y='432' font-family='Times New Roman' font-size='23'>find(); create(); destroy()</text>
+<text x='1176' y='466' font-family='Times New Roman' font-size='23'>Срок действия и ротация</text>
+<rect x='40' y='770' width='440' height='190' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='56' y='808' font-family='Times New Roman' font-size='27' font-weight='bold'>JSX-страницы</text>
+<text x='56' y='852' font-family='Times New Roman' font-size='23'>views.tsx</text>
+<text x='56' y='886' font-family='Times New Roman' font-size='23'>Layout, Field, Csrf, Actions</text>
+<rect x='600' y='770' width='440' height='190' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='616' y='808' font-family='Times New Roman' font-size='27' font-weight='bold'>ApplicationDatabase</text>
+<text x='616' y='852' font-family='Times New Roman' font-size='23'>database.ts / schema.sql</text>
+<text x='616' y='886' font-family='Times New Roman' font-size='23'>SQLite и транзакции</text>
+</svg>

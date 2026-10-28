@@ -10,7 +10,8 @@ export class ApplicationDatabase {
     readonly filename: string
     private connection?: Database
 
-    constructor(filename = process.env.DATABASE_PATH ?? 'testdb/students.sqlite') {
+    // Курсовая: собственная схема при сохранении поведения ЛР6–8 по умолчанию.
+    constructor(filename = process.env.DATABASE_PATH ?? 'testdb/students.sqlite', private readonly scripts = { schema, seed }) {
         this.filename = filename === ':memory:' ? filename : resolve(filename)
     }
 
@@ -20,7 +21,7 @@ export class ApplicationDatabase {
             const db = new Database(this.filename, { create: true, strict: true })
             try {
                 db.exec('PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;')
-                db.transaction(() => { db.exec(schema) })()
+                db.transaction(() => { db.exec(this.scripts.schema) })()
                 this.connection = db
             } catch (error) {
                 db.close()
@@ -32,7 +33,7 @@ export class ApplicationDatabase {
 
     seed(): void {
         const db = this.database
-        db.transaction(() => { db.exec(seed) })()
+        if (this.scripts.seed.trim()) db.transaction(() => { db.exec(this.scripts.seed) })()
     }
 
     close(): void {

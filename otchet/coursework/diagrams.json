@@ -1,0 +1,518 @@
+[
+  {
+    "name": "architecture",
+    "width": 1700,
+    "height": 850,
+    "boxes": [
+      {
+        "id": "browser",
+        "x": 30,
+        "y": 80,
+        "w": 310,
+        "h": 200,
+        "title": "Браузер",
+        "lines": [
+          "HTML-формы",
+          "Cookie + CSRF"
+        ]
+      },
+      {
+        "id": "controller",
+        "x": 470,
+        "y": 80,
+        "w": 390,
+        "h": 240,
+        "title": "Elysia /course",
+        "lines": [
+          "Вход и проверка CSRF",
+          "Роли и валидация",
+          "HTTP-ответ / редирект"
+        ]
+      },
+      {
+        "id": "service",
+        "x": 1000,
+        "y": 80,
+        "w": 390,
+        "h": 240,
+        "title": "CourseService",
+        "lines": [
+          "SQL и проверки владельца",
+          "Роли и расчёт стоимости",
+          "Запись журнала"
+        ]
+      },
+      {
+        "id": "db",
+        "x": 1000,
+        "y": 540,
+        "w": 390,
+        "h": 200,
+        "title": "SQLite course.sqlite",
+        "lines": [
+          "Связанные таблицы",
+          "Сессии и user_actions"
+        ]
+      },
+      {
+        "id": "audit",
+        "x": 470,
+        "y": 540,
+        "w": 390,
+        "h": 200,
+        "title": "Журнал: log()",
+        "lines": [
+          "SQLite: user_actions",
+          "JSON Lines: course.log"
+        ]
+      },
+      {
+        "id": "view",
+        "x": 30,
+        "y": 540,
+        "w": 310,
+        "h": 200,
+        "title": "JSX: views.tsx",
+        "lines": [
+          "Layout, Field, Actions",
+          "Текст с атрибутом safe"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "browser",
+        "to": "controller"
+      },
+      {
+        "from": "controller",
+        "to": "service"
+      },
+      {
+        "from": "service",
+        "to": "db"
+      },
+      {
+        "from": "service",
+        "to": "audit"
+      },
+      {
+        "from": "audit",
+        "to": "db"
+      },
+      {
+        "from": "controller",
+        "to": "view"
+      },
+      {
+        "from": "view",
+        "to": "browser"
+      }
+    ]
+  },
+  {
+    "name": "database",
+    "width": 1700,
+    "height": 1050,
+    "boxes": [
+      {
+        "id": "users",
+        "x": 40,
+        "y": 40,
+        "w": 440,
+        "h": 280,
+        "title": "users",
+        "lines": [
+          "PK id; username = email",
+          "first_name; last_name",
+          "email UNIQUE",
+          "password_hash"
+        ]
+      },
+      {
+        "id": "join",
+        "x": 680,
+        "y": 60,
+        "w": 330,
+        "h": 190,
+        "title": "user_roles",
+        "lines": [
+          "PK/FK user_id",
+          "PK/FK role_id",
+          "Many-to-many"
+        ]
+      },
+      {
+        "id": "roles",
+        "x": 1230,
+        "y": 60,
+        "w": 360,
+        "h": 190,
+        "title": "roles",
+        "lines": [
+          "PK id",
+          "name UNIQUE"
+        ]
+      },
+      {
+        "id": "teachers",
+        "x": 40,
+        "y": 500,
+        "w": 440,
+        "h": 250,
+        "title": "animals",
+        "lines": [
+          "PK id; FK owner_id",
+          "name; species; age"
+        ]
+      },
+      {
+        "id": "courses",
+        "x": 680,
+        "y": 500,
+        "w": 420,
+        "h": 280,
+        "title": "expenses",
+        "lines": [
+          "PK id; FK owner_id",
+          "FK animal_id; category",
+          "amount_cents; expense_date",
+          "description"
+        ]
+      },
+      {
+        "id": "actions",
+        "x": 1230,
+        "y": 500,
+        "w": 420,
+        "h": 280,
+        "title": "user_actions",
+        "lines": [
+          "PK id; FK user_id",
+          "date_actions; username",
+          "action; description"
+        ]
+      },
+      {
+        "id": "sessions",
+        "x": 40,
+        "y": 850,
+        "w": 440,
+        "h": 170,
+        "title": "sessions",
+        "lines": [
+          "PK token_hash; FK user_id",
+          "csrf_token; expires_at"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "join",
+        "to": "users"
+      },
+      {
+        "from": "join",
+        "to": "roles"
+      },
+      {
+        "from": "teachers",
+        "to": "users"
+      },
+      {
+        "from": "courses",
+        "to": "teachers"
+      },
+      {
+        "from": "courses",
+        "to": "users",
+        "points": [
+          [
+            800,
+            500
+          ],
+          [
+            800,
+            410
+          ],
+          [
+            400,
+            410
+          ],
+          [
+            400,
+            320
+          ]
+        ]
+      },
+      {
+        "from": "actions",
+        "to": "users",
+        "points": [
+          [
+            1230,
+            580
+          ],
+          [
+            1160,
+            580
+          ],
+          [
+            1160,
+            360
+          ],
+          [
+            470,
+            360
+          ],
+          [
+            470,
+            320
+          ]
+        ]
+      },
+      {
+        "from": "sessions",
+        "to": "users",
+        "points": [
+          [
+            40,
+            930
+          ],
+          [
+            15,
+            930
+          ],
+          [
+            15,
+            220
+          ],
+          [
+            40,
+            220
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "classes",
+    "width": 1700,
+    "height": 1000,
+    "boxes": [
+      {
+        "id": "controller",
+        "x": 600,
+        "y": 30,
+        "w": 440,
+        "h": 220,
+        "title": "Elysia: index.ts",
+        "lines": [
+          "Маршруты одной цепочкой",
+          "Проверка сессии и CSRF",
+          "Возврат JSX-страницы"
+        ]
+      },
+      {
+        "id": "user",
+        "x": 40,
+        "y": 350,
+        "w": 440,
+        "h": 240,
+        "title": "UserService",
+        "lines": [
+          "register(dto)",
+          "authenticate(login, password)",
+          "UserDAO + Argon2id"
+        ]
+      },
+      {
+        "id": "course",
+        "x": 600,
+        "y": 350,
+        "w": 440,
+        "h": 280,
+        "title": "CourseService",
+        "lines": [
+          "animals(); expenses()",
+          "save*(); delete*(); costs()",
+          "grant(); log(); logs()",
+          "SQL и проверка владельца"
+        ]
+      },
+      {
+        "id": "role",
+        "x": 1160,
+        "y": 350,
+        "w": 440,
+        "h": 240,
+        "title": "SessionService",
+        "lines": [
+          "find(); create(); destroy()",
+          "Срок действия и ротация"
+        ]
+      },
+      {
+        "id": "session",
+        "x": 40,
+        "y": 770,
+        "w": 440,
+        "h": 190,
+        "title": "JSX-страницы",
+        "lines": [
+          "views.tsx",
+          "Layout, Field, Csrf, Actions"
+        ]
+      },
+      {
+        "id": "audit",
+        "x": 600,
+        "y": 770,
+        "w": 440,
+        "h": 190,
+        "title": "ApplicationDatabase",
+        "lines": [
+          "database.ts / schema.sql",
+          "SQLite и транзакции"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "controller",
+        "to": "user"
+      },
+      {
+        "from": "controller",
+        "to": "course"
+      },
+      {
+        "from": "controller",
+        "to": "role"
+      },
+      {
+        "from": "controller",
+        "to": "session"
+      },
+      {
+        "from": "course",
+        "to": "audit"
+      },
+      {
+        "from": "user",
+        "to": "audit"
+      },
+      {
+        "from": "role",
+        "to": "audit"
+      }
+    ]
+  },
+  {
+    "name": "spring-mvc",
+    "width": 1700,
+    "height": 800,
+    "boxes": [
+      {
+        "id": "client",
+        "x": 30,
+        "y": 70,
+        "w": 300,
+        "h": 190,
+        "title": "HTTP-клиент",
+        "lines": [
+          "Запрос формы",
+          "Получение HTML"
+        ]
+      },
+      {
+        "id": "dispatcher",
+        "x": 460,
+        "y": 70,
+        "w": 420,
+        "h": 220,
+        "title": "DispatcherServlet",
+        "lines": [
+          "Фронт-контроллер",
+          "Выбор обработчика",
+          "Обработка результата"
+        ]
+      },
+      {
+        "id": "controller",
+        "x": 1040,
+        "y": 70,
+        "w": 420,
+        "h": 220,
+        "title": "Controller",
+        "lines": [
+          "Вызов сервисного слоя",
+          "Подготовка Model",
+          "Имя представления"
+        ]
+      },
+      {
+        "id": "service",
+        "x": 1040,
+        "y": 490,
+        "w": 420,
+        "h": 210,
+        "title": "Service / Repository",
+        "lines": [
+          "Правила приложения",
+          "Операции с БД"
+        ]
+      },
+      {
+        "id": "view",
+        "x": 460,
+        "y": 490,
+        "w": 420,
+        "h": 210,
+        "title": "ViewResolver / View",
+        "lines": [
+          "Поиск шаблона",
+          "Формирование HTML"
+        ]
+      },
+      {
+        "id": "html",
+        "x": 30,
+        "y": 490,
+        "w": 300,
+        "h": 190,
+        "title": "HTTP-ответ",
+        "lines": [
+          "HTML-страница",
+          "или перенаправление"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "client",
+        "to": "dispatcher"
+      },
+      {
+        "from": "dispatcher",
+        "to": "controller"
+      },
+      {
+        "from": "controller",
+        "to": "service"
+      },
+      {
+        "from": "controller",
+        "to": "view"
+      },
+      {
+        "from": "view",
+        "to": "html"
+      },
+      {
+        "from": "html",
+        "to": "client"
+      }
+    ]
+  }
+]

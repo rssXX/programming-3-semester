@@ -1,0 +1,35 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1700' height='850' viewBox='0 0 1700 850'><rect width='100%' height='100%' fill='white'/><defs><marker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto'><path d='M0,0 L0,6 L9,3 z' fill='#5a6d88'/></marker></defs>
+<polyline points='340,180 470,200' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='860,200 1000,200' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1195,320 1195,540' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1000,200 860,640' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='860,640 1000,640' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='470,200 340,640' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='185,540 185,280' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<rect x='30' y='80' width='310' height='200' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='46' y='118' font-family='Times New Roman' font-size='27' font-weight='bold'>Браузер</text>
+<text x='46' y='162' font-family='Times New Roman' font-size='23'>HTML-формы</text>
+<text x='46' y='196' font-family='Times New Roman' font-size='23'>Cookie + CSRF</text>
+<rect x='470' y='80' width='390' height='240' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='486' y='118' font-family='Times New Roman' font-size='27' font-weight='bold'>Elysia /course</text>
+<text x='486' y='162' font-family='Times New Roman' font-size='23'>Вход и проверка CSRF</text>
+<text x='486' y='196' font-family='Times New Roman' font-size='23'>Роли и валидация</text>
+<text x='486' y='230' font-family='Times New Roman' font-size='23'>HTTP-ответ / редирект</text>
+<rect x='1000' y='80' width='390' height='240' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='1016' y='118' font-family='Times New Roman' font-size='27' font-weight='bold'>CourseService</text>
+<text x='1016' y='162' font-family='Times New Roman' font-size='23'>SQL и проверки владельца</text>
+<text x='1016' y='196' font-family='Times New Roman' font-size='23'>Роли и расчёт стоимости</text>
+<text x='1016' y='230' font-family='Times New Roman' font-size='23'>Запись журнала</text>
+<rect x='1000' y='540' width='390' height='200' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='1016' y='578' font-family='Times New Roman' font-size='27' font-weight='bold'>SQLite course.sqlite</text>
+<text x='1016' y='622' font-family='Times New Roman' font-size='23'>Связанные таблицы</text>
+<text x='1016' y='656' font-family='Times New Roman' font-size='23'>Сессии и user_actions</text>
+<rect x='470' y='540' width='390' height='200' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='486' y='578' font-family='Times New Roman' font-size='27' font-weight='bold'>Журнал: log()</text>
+<text x='486' y='622' font-family='Times New Roman' font-size='23'>SQLite: user_actions</text>
+<text x='486' y='656' font-family='Times New Roman' font-size='23'>JSON Lines: course.log</text>
+<rect x='30' y='540' width='310' height='200' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='46' y='578' font-family='Times New Roman' font-size='27' font-weight='bold'>JSX: views.tsx</text>
+<text x='46' y='622' font-family='Times New Roman' font-size='23'>Layout, Field, Actions</text>
+<text x='46' y='656' font-family='Times New Roman' font-size='23'>Текст с атрибутом safe</text>
+</svg>

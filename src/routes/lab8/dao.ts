@@ -10,12 +10,13 @@ type UserRow = Omit<User, 'roles'>
 export class SecurityStore {
     private initialized?: Database
 
-    constructor(private readonly connection: ApplicationDatabase) {}
+    // Курсовая может передать свою схему; ЛР8 использует прежнюю по умолчанию.
+    constructor(private readonly connection: ApplicationDatabase, private readonly initializationSchema = schema) {}
 
     get database(): Database {
         const db = this.connection.database
         if (this.initialized !== db) {
-            db.transaction(() => { db.exec(schema) })()
+            if (this.initializationSchema.trim()) db.transaction(() => { db.exec(this.initializationSchema) })()
             this.initialized = db
         }
         return db
@@ -23,7 +24,8 @@ export class SecurityStore {
 }
 
 export class UserDAO {
-    constructor(private readonly store: SecurityStore) {}
+    // В ЛР8 — ROLE_ADMIN из методички; в курсовой — READ_ONLY.
+    constructor(private readonly store: SecurityStore | ApplicationDatabase, private readonly registrationRole = 'ROLE_ADMIN') {}
 
     findById(id: number): User | null {
         const row = this.store.database.query<UserRow, [number]>(
@@ -51,7 +53,8 @@ export class UserDAO {
             const result = db.query<{ id: number }, [string, string, string, string]>(
                 'INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?) RETURNING id',
             ).get(data.firstName, data.lastName, data.email, passwordHash)!
-            db.query("INSERT INTO user_roles (user_id, role_id) SELECT ?, id FROM roles WHERE name = 'ROLE_ADMIN'").run(result.id)
+            const assigned = db.query('INSERT INTO user_roles (user_id, role_id) SELECT ?, id FROM roles WHERE name = ?').run(result.id, this.registrationRole)
+            if (assigned.changes !== 1) throw new Error('Не найдена роль для регистрации')
             return this.findById(result.id)!
         })()
     }

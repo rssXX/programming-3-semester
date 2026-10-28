@@ -1,6 +1,7 @@
 // ЛР8: cookie содержит случайный токен; в БД хранится только его SHA-256.
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import type { SecurityStore, UserDAO } from './dao'
+import type { ApplicationDatabase } from '../../database'
 import type { Session } from './entity'
 
 export const SESSION_COOKIE = 'lab8_session'
@@ -16,7 +17,7 @@ interface SessionRow {
 }
 
 export class SessionService {
-    constructor(private readonly store: SecurityStore, private readonly users: UserDAO) {}
+    constructor(private readonly store: SecurityStore | ApplicationDatabase, private readonly users: UserDAO) {}
 
     find(value: unknown): Session | null {
         if (typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value)) return null

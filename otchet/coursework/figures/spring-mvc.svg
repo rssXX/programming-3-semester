@@ -1,0 +1,34 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1700' height='800' viewBox='0 0 1700 800'><rect width='100%' height='100%' fill='white'/><defs><marker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto'><path d='M0,0 L0,6 L9,3 z' fill='#5a6d88'/></marker></defs>
+<polyline points='330,165 460,180' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='880,180 1040,180' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1250,290 1250,490' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1040,180 880,595' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='460,595 330,585' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='180,490 180,260' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<rect x='30' y='70' width='300' height='190' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='46' y='108' font-family='Times New Roman' font-size='27' font-weight='bold'>HTTP-клиент</text>
+<text x='46' y='152' font-family='Times New Roman' font-size='23'>Запрос формы</text>
+<text x='46' y='186' font-family='Times New Roman' font-size='23'>Получение HTML</text>
+<rect x='460' y='70' width='420' height='220' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='476' y='108' font-family='Times New Roman' font-size='27' font-weight='bold'>DispatcherServlet</text>
+<text x='476' y='152' font-family='Times New Roman' font-size='23'>Фронт-контроллер</text>
+<text x='476' y='186' font-family='Times New Roman' font-size='23'>Выбор обработчика</text>
+<text x='476' y='220' font-family='Times New Roman' font-size='23'>Обработка результата</text>
+<rect x='1040' y='70' width='420' height='220' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='1056' y='108' font-family='Times New Roman' font-size='27' font-weight='bold'>Controller</text>
+<text x='1056' y='152' font-family='Times New Roman' font-size='23'>Вызов сервисного слоя</text>
+<text x='1056' y='186' font-family='Times New Roman' font-size='23'>Подготовка Model</text>
+<text x='1056' y='220' font-family='Times New Roman' font-size='23'>Имя представления</text>
+<rect x='1040' y='490' width='420' height='210' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='1056' y='528' font-family='Times New Roman' font-size='27' font-weight='bold'>Service / Repository</text>
+<text x='1056' y='572' font-family='Times New Roman' font-size='23'>Правила приложения</text>
+<text x='1056' y='606' font-family='Times New Roman' font-size='23'>Операции с БД</text>
+<rect x='460' y='490' width='420' height='210' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='476' y='528' font-family='Times New Roman' font-size='27' font-weight='bold'>ViewResolver / View</text>
+<text x='476' y='572' font-family='Times New Roman' font-size='23'>Поиск шаблона</text>
+<text x='476' y='606' font-family='Times New Roman' font-size='23'>Формирование HTML</text>
+<rect x='30' y='490' width='300' height='190' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='46' y='528' font-family='Times New Roman' font-size='27' font-weight='bold'>HTTP-ответ</text>
+<text x='46' y='572' font-family='Times New Roman' font-size='23'>HTML-страница</text>
+<text x='46' y='606' font-family='Times New Roman' font-size='23'>или перенаправление</text>
+</svg>

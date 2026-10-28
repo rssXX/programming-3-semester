@@ -1,0 +1,43 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1700' height='1050' viewBox='0 0 1700 1050'><rect width='100%' height='100%' fill='white'/><defs><marker id='arrow' markerWidth='10' markerHeight='10' refX='9' refY='3' orient='auto'><path d='M0,0 L0,6 L9,3 z' fill='#5a6d88'/></marker></defs>
+<polyline points='680,155 480,180' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1010,155 1230,155' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='260,500 260,320' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='680,640 480,625' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='800,500 800,410 400,410 400,320' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='1230,580 1160,580 1160,360 470,360 470,320' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<polyline points='40,930 15,930 15,220 40,220' fill='none' stroke='#5a6d88' stroke-width='3' marker-end='url(#arrow)'/>
+<rect x='40' y='40' width='440' height='280' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='56' y='78' font-family='Times New Roman' font-size='27' font-weight='bold'>users</text>
+<text x='56' y='122' font-family='Times New Roman' font-size='23'>PK id; username = email</text>
+<text x='56' y='156' font-family='Times New Roman' font-size='23'>first_name; last_name</text>
+<text x='56' y='190' font-family='Times New Roman' font-size='23'>email UNIQUE</text>
+<text x='56' y='224' font-family='Times New Roman' font-size='23'>password_hash</text>
+<rect x='680' y='60' width='330' height='190' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='696' y='98' font-family='Times New Roman' font-size='27' font-weight='bold'>user_roles</text>
+<text x='696' y='142' font-family='Times New Roman' font-size='23'>PK/FK user_id</text>
+<text x='696' y='176' font-family='Times New Roman' font-size='23'>PK/FK role_id</text>
+<text x='696' y='210' font-family='Times New Roman' font-size='23'>Many-to-many</text>
+<rect x='1230' y='60' width='360' height='190' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='1246' y='98' font-family='Times New Roman' font-size='27' font-weight='bold'>roles</text>
+<text x='1246' y='142' font-family='Times New Roman' font-size='23'>PK id</text>
+<text x='1246' y='176' font-family='Times New Roman' font-size='23'>name UNIQUE</text>
+<rect x='40' y='500' width='440' height='250' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='56' y='538' font-family='Times New Roman' font-size='27' font-weight='bold'>animals</text>
+<text x='56' y='582' font-family='Times New Roman' font-size='23'>PK id; FK owner_id</text>
+<text x='56' y='616' font-family='Times New Roman' font-size='23'>name; species; age</text>
+<rect x='680' y='500' width='420' height='280' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='696' y='538' font-family='Times New Roman' font-size='27' font-weight='bold'>expenses</text>
+<text x='696' y='582' font-family='Times New Roman' font-size='23'>PK id; FK owner_id</text>
+<text x='696' y='616' font-family='Times New Roman' font-size='23'>FK animal_id; category</text>
+<text x='696' y='650' font-family='Times New Roman' font-size='23'>amount_cents; expense_date</text>
+<text x='696' y='684' font-family='Times New Roman' font-size='23'>description</text>
+<rect x='1230' y='500' width='420' height='280' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='1246' y='538' font-family='Times New Roman' font-size='27' font-weight='bold'>user_actions</text>
+<text x='1246' y='582' font-family='Times New Roman' font-size='23'>PK id; FK user_id</text>
+<text x='1246' y='616' font-family='Times New Roman' font-size='23'>date_actions; username</text>
+<text x='1246' y='650' font-family='Times New Roman' font-size='23'>action; description</text>
+<rect x='40' y='850' width='440' height='170' fill='#f6f8fc' stroke='#3c5374' stroke-width='2'/>
+<text x='56' y='888' font-family='Times New Roman' font-size='27' font-weight='bold'>sessions</text>
+<text x='56' y='932' font-family='Times New Roman' font-size='23'>PK token_hash; FK user_id</text>
+<text x='56' y='966' font-family='Times New Roman' font-size='23'>csrf_token; expires_at</text>
+</svg>

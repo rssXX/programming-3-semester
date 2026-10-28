@@ -9,9 +9,11 @@
     "start": "bun run src/index.ts",
     "start:service2": "bun run src/service2.ts",
     "db:init": "bun run scripts/database.ts init",
-    "db:seed": "bun run scripts/database.ts seed"
+    "db:seed": "bun run scripts/database.ts seed",
+    "course:admin": "bun run scripts/course-admin.ts"
   },
   "dependencies": {
+    "@elysia/html": "^1.4.1",
     "@elysia/openapi": "^1.4.16",
     "consola": "^3.4.2",
     "elysia": "latest"

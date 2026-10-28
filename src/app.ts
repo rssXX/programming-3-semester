@@ -5,6 +5,8 @@ import { ApplicationDatabase } from './database'
 import { createLab7Pages } from './routes/lab7'
 import { createMonitoring } from './routes/lab7/monitoring'
 import { createLab8 } from './routes/lab8'
+import { createCourse } from './course'
+import { createCourseDatabase } from './course/database'
 import { ROUTES_V1, ROUTES_V2, createService1Feedback, createBonusFeedback, createDatabaseRoutes } from './routes'
 
 interface AppOptions {
@@ -13,6 +15,8 @@ interface AppOptions {
     timeoutMs?: number
     databasePath?: string
     lab8DatabasePath?: string
+    courseDatabasePath?: string
+    courseLogPath?: string
 }
 
 // ЛР4: Сервис 1. /api/v1 и /api/v2 сохраняют поведение предыдущих лабораторных.
@@ -22,15 +26,20 @@ export const createApp = ({
     timeoutMs,
     databasePath,
     lab8DatabasePath = process.env.LAB8_DATABASE_PATH ?? 'testdb/lab8.sqlite',
+    courseDatabasePath,
+    courseLogPath,
 }: AppOptions = {}) => {
     const connection = new ApplicationDatabase(databasePath)
     // ЛР8: отдельные данные защищённого этапа, прежние API работают со своей БД.
     const securityConnection = new ApplicationDatabase(lab8DatabasePath)
-    if (connection.filename !== ':memory:' && connection.filename === securityConnection.filename) {
-        throw new Error('DATABASE_PATH и LAB8_DATABASE_PATH должны указывать на разные файлы')
+    const courseConnection = createCourseDatabase(courseDatabasePath)
+    const filenames = [connection, securityConnection, courseConnection].map(db => db.filename).filter(filename => filename !== ':memory:')
+        .map(filename => process.platform === 'win32' ? filename.toLowerCase() : filename)
+    if (new Set(filenames).size !== filenames.length) {
+        throw new Error('DATABASE_PATH, LAB8_DATABASE_PATH и COURSE_DATABASE_PATH должны указывать на разные файлы')
     }
     return new Elysia()
-        .onStop(() => { connection.close(); securityConnection.close() })
+        .onStop(() => { connection.close(); securityConnection.close(); courseConnection.close() })
         .use(openapi())
         .group('/api/v1', group => group.use(ROUTES_V1))
         .group('/api/v2', group => group.use(ROUTES_V2))
@@ -44,4 +53,6 @@ export const createApp = ({
         .use(createMonitoring(connection, logger))
         // ЛР8: регистрация, вход, роли, CSRF и защищённые формы студентов.
         .use(createLab8(securityConnection, logger))
+        // Курсовая: вариант 5, роли READ_ONLY / USER / ADMIN и журнал действий.
+        .use(createCourse(courseConnection, courseLogPath, logger))
 }
