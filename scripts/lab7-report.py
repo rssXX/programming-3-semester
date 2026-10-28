@@ -1,4 +1,4 @@
-"""ЛР7–8: собрать DOCX из Markdown стандартной библиотекой, без скриншотов."""
+"""ЛР2, 3, 7, 8: собрать DOCX из Markdown стандартной библиотекой, без скриншотов."""
 import argparse
 from pathlib import Path
 import re
@@ -153,5 +153,5 @@ def main(laboratory=7):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("laboratory", type=int, choices=[7, 8], nargs="?", default=7)
+    parser.add_argument("laboratory", type=int, choices=[2, 3, 7, 8], nargs="?", default=7)
     main(parser.parse_args().laboratory)
