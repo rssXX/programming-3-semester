@@ -43,7 +43,7 @@ export const feedback = new Elysia({ prefix: '/feedback' })
             },
             error({ code, error, body, set, logger }) {
                 logger.info('Request that caused an error:', JSON.stringify(body))
-                logger.error('Request processing error:', error.message, error)
+                logger.error('Request processing error:', error instanceof Error ? error.message : error)
                 const request = body as Record<string, unknown> | null | undefined
                 const response = {
                     uid: typeof request?.uid === 'string' ? request.uid : '',
