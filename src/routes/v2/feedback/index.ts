@@ -1,27 +1,39 @@
 import { Elysia } from 'elysia'
+import { consola } from 'consola'
+import { Codes, ErrorCodes, ErrorMessages } from './enums'
+import { DateTimeUtil } from '../../../util/DateTimeUtil'
 
-import { FeedbackModelRequest, FeedbackModelResponse } from './model'
-import { RequestValidationService } from './service'
+import { FeedbackModelRequest, FeedbackModelResponse, FeedbackRequest } from './model'
+import { ModifySystemTimeResponseService, RequestValidationService } from './service'
+import type { ModifyResponseService } from './service'
 import { UnsupportedCodeException, ValidationFailedException } from './exception'
 
 const validationService = new RequestValidationService()
+const modifyResponseService: ModifyResponseService = new ModifySystemTimeResponseService()
 
 export const feedback = new Elysia({ prefix: '/feedback' })
+    .decorate('logger', consola)
 	.post(
 		'',
-		({ body }) => {
+		({ body, logger }) => {
+            logger.info(`request: ${new FeedbackRequest(body).toString()}`)
 			validationService.isValid([])
             if (body.uid === '123') {
+                logger.error('UnsupportedCodeException: uid 123 is not supported')
                 throw new UnsupportedCodeException('uid 123 не поддерживается')
             }
-			return {
+			const response = {
 				uid: body.uid,
 				operationUid: body.operationUid,
-				systemTime: new Date().toISOString(),
-				code: 'success',
-				errorCode: '',
-				errorMessage: '',
+				systemTime: DateTimeUtil.getCustomFormat(new Date()),
+				code: Codes.SUCCESS,
+				errorCode: ErrorCodes.EMPTY,
+				errorMessage: ErrorMessages.EMPTY,
 			}
+            logger.info('Response created:', JSON.stringify(response))
+            const result = modifyResponseService.modify(response)
+            logger.info('Response sent (200):', JSON.stringify(result))
+            return result
 		}, {
             body: FeedbackModelRequest,
 			response: {
@@ -29,45 +41,53 @@ export const feedback = new Elysia({ prefix: '/feedback' })
                 400: FeedbackModelResponse,
                 500: FeedbackModelResponse,
             },
-            error({ code, error, body, set }) {
+            error({ code, error, body, set, logger }) {
+                logger.info('Request that caused an error:', JSON.stringify(body))
+                logger.error('Request processing error:', error.message, error)
                 const request = body as Record<string, unknown> | null | undefined
                 const response = {
                     uid: typeof request?.uid === 'string' ? request.uid : '',
                     operationUid: typeof request?.operationUid === 'string' ? request.operationUid : '',
-                    systemTime: new Date().toISOString(),
-                    code: 'failed' as const,
+                    systemTime: DateTimeUtil.getCustomFormat(new Date()),
+                    code: Codes.FAILED,
                 }
 
                 try {
                     if (code === 'VALIDATION') {
-                        validationService.isValid([error.message])
+                        validationService.isValid(error.all.map(issue => `${issue.path}: ${issue.message}`))
                     }
                     throw error
                 } catch (exception) {
                     if (exception instanceof UnsupportedCodeException) {
                         set.status = 400
-                        return {
+                        const result = {
                             ...response,
-                            errorCode: 'UnsupportedCodeException' as const,
-                            errorMessage: 'Не поддерживаемая ошибка' as const,
+                            errorCode: ErrorCodes.UNSUPPORTED_EXCEPTION,
+                            errorMessage: ErrorMessages.UNSUPPORTED,
                         }
+                        logger.info('Response sent (400):', JSON.stringify(result))
+                        return result
                     }
 
                     if (exception instanceof ValidationFailedException) {
                         set.status = 400
-                        return {
+                        const result = {
                             ...response,
-                            errorCode: 'ValidationException' as const,
-                            errorMessage: 'Ошибка валидации' as const,
+                            errorCode: ErrorCodes.VALIDATION_EXCEPTION,
+                            errorMessage: ErrorMessages.VALIDATION,
                         }
+                        logger.info('Response sent (400):', JSON.stringify(result))
+                        return result
                     }
 
                     set.status = 500
-                    return {
+                    const result = {
                         ...response,
-                        errorCode: 'UnknownException' as const,
-                        errorMessage: 'Произошла непредвиденная ошибка' as const,
+                        errorCode: ErrorCodes.UNKNOWN_EXCEPTION,
+                        errorMessage: ErrorMessages.UNKNOWN,
                     }
+                    logger.info('Response sent (500):', JSON.stringify(result))
+                    return result
                 }
             },
 		}

@@ -1,9 +1,10 @@
 import { t } from 'elysia'
+import { Codes, ErrorCodes, ErrorMessages, Systems } from './enums'
 
 export const FeedbackModelRequest = t.Object({
     uid: t.String({ maxLength: 32, pattern: '\\S' }),
     operationUid: t.String({ maxLength: 32 }),
-    systemName: t.Optional(t.String()),
+    systemName: t.Optional(t.Enum(Systems)),
     systemTime: t.String(),
     source: t.Optional(t.String()),
     communicationId: t.Integer({ minimum: 1, maximum: 100000 }),
@@ -12,21 +13,19 @@ export const FeedbackModelRequest = t.Object({
     smsCode: t.Optional(t.Integer()),
 })
 
+export class FeedbackRequest {
+    constructor(private readonly data: typeof FeedbackModelRequest.static) {}
+
+    toString(): string {
+        return JSON.stringify(this.data)
+    }
+}
+
 export const FeedbackModelResponse = t.Object({
     uid: t.String(),
     operationUid: t.String(),
     systemTime: t.String(),
-    code: t.Union([t.Literal('success'), t.Literal('failed')]),
-    errorCode: t.Union([
-        t.Literal(''),
-        t.Literal('UnsupportedCodeException'),
-        t.Literal('ValidationException'),
-        t.Literal('UnknownException'),
-    ]),
-    errorMessage: t.Union([
-        t.Literal(''),
-        t.Literal('Не поддерживаемая ошибка'),
-        t.Literal('Ошибка валидации'),
-        t.Literal('Произошла непредвиденная ошибка'),
-    ]),
+    code: t.Enum(Codes),
+    errorCode: t.Enum(ErrorCodes),
+    errorMessage: t.Enum(ErrorMessages),
 })
