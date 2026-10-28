@@ -1,0 +1,717 @@
+{
+  "info": {
+    "name": "ЛР5 — расчёт премий и валидация",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Запустить оба сервиса: bun run dev:service2 (8084), bun run dev (8082). ЛР5: POST /api/v4/feedback. Годовая формула из методички; квартальная принята annualBonus / 4 только для руководителей. year необязателен. Для DEV/HR quarterlyBonus = null. Проверки unit-тестов: bun test tests/lab5-bonus.test.ts."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082"
+    }
+  ],
+  "item": [
+    {
+      "name": "ЛР5 — HR, обычный год (пример методички)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const expected = 360493.8271604938; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия не положена', function () { pm.expect(pm.response.json().quarterlyBonus).to.eql(null); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — HR, високосный год",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2024\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const expected = 361481.48148148146; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия не положена', function () { pm.expect(pm.response.json().quarterlyBonus).to.eql(null); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — руководитель TL",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"TL\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const expected = 781069.9588477366; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия руководителя', function () { pm.expect(Math.abs(pm.response.json().quarterlyBonus - 195267.48971193415) < 0.000001).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — руководитель PO",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"PO\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const expected = 841152.2633744855; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия руководителя', function () { pm.expect(Math.abs(pm.response.json().quarterlyBonus - 210288.06584362139) < 0.000001).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — руководитель TPM",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"TPM\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const expected = 901234.5679012346; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия руководителя', function () { pm.expect(Math.abs(pm.response.json().quarterlyBonus - 225308.64197530865) < 0.000001).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — руководитель CTO",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"CTO\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const expected = 1051440.329218107; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия руководителя', function () { pm.expect(Math.abs(pm.response.json().quarterlyBonus - 262860.08230452676) < 0.000001).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — DEV без квартальной премии",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"DEV\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const expected = 660905.3497942387; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия не положена', function () { pm.expect(pm.response.json().quarterlyBonus).to.eql(null); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — отсутствует обязательный salary",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400 до пересылки. Поля премий в ошибке отсутствуют."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — нулевое число дней",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 0,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400 до пересылки. Поля премий в ошибке отсутствуют."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — 366 дней в обычном году",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 366,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400 до пересылки. Поля премий в ошибке отсутствуют."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — неизвестная должность",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"CEO\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400 до пересылки. Поля премий в ошибке отсутствуют."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — отрицательный оклад",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"salary\": -1,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400 до пересылки. Поля премий в ошибке отсутствуют."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — неподдерживаемый uid",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"123\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243,\n  \"year\": 2023\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается HTTP 400 до пересылки. Поля премий в ошибке отсутствуют."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('failed'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql('UnsupportedCodeException'); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('123'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ЛР5 — текущий год по умолчанию",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-5\",\n  \"operationUid\": \"operation-5\",\n  \"systemName\": \"CRM\",\n  \"systemTime\": \"2026-10-28T12:00:00.000Z\",\n  \"source\": \"Postman\",\n  \"communicationId\": 100,\n  \"templateId\": 8,\n  \"productCode\": 1500,\n  \"smsCode\": 10,\n  \"position\": \"HR\",\n  \"salary\": 100000,\n  \"bonus\": 2,\n  \"workDays\": 243\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v4/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v4",
+            "feedback"
+          ]
+        },
+        "description": "Ожидается успешный расчёт после пересылки в Сервис 2."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Результат', function () { pm.expect(pm.response.json().code).to.eql('success'); });",
+              "pm.test('Код ошибки', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });",
+              "pm.test('uid сохранён', function () { pm.expect(pm.response.json().uid).to.eql('message-5'); });",
+              "pm.test('operationUid сохранён', function () { pm.expect(pm.response.json().operationUid).to.eql('operation-5'); });",
+              "pm.test('Время ответа заполнено', function () { pm.expect(Number.isNaN(Date.parse(pm.response.json().systemTime))).to.eql(false); });",
+              "pm.test('Годовая премия', function () { const year = new Date().getFullYear(); const days = (Date.UTC(year + 1, 0, 1) - Date.UTC(year, 0, 1)) / 86400000; const expected = 100000 * 2 * days * 1.2 / 243; pm.expect(Math.abs(pm.response.json().annualBonus - expected) < 0.000001).to.eql(true); });",
+              "pm.test('Квартальная премия не положена', function () { pm.expect(pm.response.json().quarterlyBonus).to.eql(null); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

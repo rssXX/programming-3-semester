@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { openapi } from '@elysia/openapi'
 import { consola } from 'consola'
-import { ROUTES_V1, ROUTES_V2, createService1Feedback } from './routes'
+import { ROUTES_V1, ROUTES_V2, createService1Feedback, createBonusFeedback } from './routes'
 
 interface AppOptions {
     service2Url?: string
@@ -19,3 +19,5 @@ export const createApp = ({
     .group('/api/v1', group => group.use(ROUTES_V1))
     .group('/api/v2', group => group.use(ROUTES_V2))
     .group('/api/v3', group => group.use(createService1Feedback({ targetUrl: service2Url, logger, timeoutMs })))
+    // ЛР5: расширенный контракт запроса и расчёт премий; прежние версии API сохранены.
+    .group('/api/v4', group => group.use(createBonusFeedback({ targetUrl: service2Url, logger, timeoutMs })))

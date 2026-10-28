@@ -7,3 +7,5 @@ export {
 }
 
 export { createService1Feedback, createService2Feedback } from './v3'
+
+export { createBonusFeedback } from './v4'
