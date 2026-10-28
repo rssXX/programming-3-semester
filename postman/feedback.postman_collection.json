@@ -1,0 +1,239 @@
+{
+  "info": {
+    "name": "Feedback tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082"
+    }
+  ],
+  "item": [
+    {
+      "name": "Valid request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-28T12:00:00Z\",\n  \"communicationId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v2/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v2",
+            "feedback"
+          ]
+        },
+        "description": "Expected HTTP 200; errorCode: \"\"."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(200); });",
+              "pm.test('Error code', function () { pm.expect(pm.response.json().errorCode).to.eql(''); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Empty uid",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-28T12:00:00Z\",\n  \"communicationId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v2/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v2",
+            "feedback"
+          ]
+        },
+        "description": "Expected HTTP 400; errorCode: \"ValidationException\"."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Error code', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid communicationId",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"message-1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-28T12:00:00Z\",\n  \"communicationId\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v2/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v2",
+            "feedback"
+          ]
+        },
+        "description": "Expected HTTP 400; errorCode: \"ValidationException\"."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Error code', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Multiple validation errors",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"   \",\n  \"operationUid\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n  \"systemTime\": 42,\n  \"communicationId\": 100001,\n  \"systemName\": false,\n  \"source\": 1,\n  \"templateId\": 1.5,\n  \"productCode\": \"abc\",\n  \"smsCode\": null\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v2/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v2",
+            "feedback"
+          ]
+        },
+        "description": "Expected HTTP 400; errorCode: \"ValidationException\"."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Error code', function () { pm.expect(pm.response.json().errorCode).to.eql('ValidationException'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unsupported uid 123",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uid\": \"123\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-28T12:00:00Z\",\n  \"communicationId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v2/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v2",
+            "feedback"
+          ]
+        },
+        "description": "Expected HTTP 400; errorCode: \"UnsupportedCodeException\"."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Error code', function () { pm.expect(pm.response.json().errorCode).to.eql('UnsupportedCodeException'); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
